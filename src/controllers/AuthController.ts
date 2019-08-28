@@ -10,8 +10,11 @@ export class AuthController {
     static login = async (req: Request, res: Response) => {
         //Check if username and password are set
         let { username, password } = req.body;
+        console.log(username, password, req.body)
         if (!(username && password)) {
+            console.log('bad')
             res.status(400).send();
+            return;
         }
 
         //Get user from database
@@ -22,6 +25,12 @@ export class AuthController {
         } catch (error) {
             res.status(401).send();
         }
+
+        if(!user) {
+            res.status(404).send();
+            return
+        }
+
 
         //Check if encrypted password match
         if (!user.checkIfUnencryptedPasswordIsValid(password)) {
