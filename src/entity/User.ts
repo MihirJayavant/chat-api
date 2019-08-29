@@ -4,15 +4,15 @@ import {
     Column,
     Unique,
     CreateDateColumn,
-    UpdateDateColumn
+    UpdateDateColumn, 
   } from "typeorm";
   import { Length, IsNotEmpty } from "class-validator";
   import * as bcrypt from "bcryptjs";
-import { IUser } from "../models";
+import { IUserEntity } from "../models";
   
   @Entity()
   @Unique(["username"])
-  export class User implements IUser {
+  export class User implements IUserEntity {
       
     @PrimaryGeneratedColumn()
     id: number;
