@@ -105,13 +105,10 @@ export class AuthController {
     try {
       await userRepository.save(userEntity)
     } catch (e) {
-      // res.status(409).send('username already in use')
-      console.log(e)
       return createResponseMessage(409, 'username already in use')
     }
 
     //If all ok, send 201 response
-    // res.status(201).send('User created')
     return createResponseMessage(201, 'User created')
   }
 }
