@@ -2,12 +2,17 @@ import { Request, Response } from 'express'
 import * as jwt from 'jsonwebtoken'
 import { getRepository } from 'typeorm'
 import { validate } from 'class-validator'
+import { Get, Post, Route, Body, Query, Header, Path, SuccessResponse, Controller } from 'tsoa'
 
 import { User } from '../entity/User'
 import { config } from '../config'
+import { IUserAddApiModel, IActionResult, createResponseMessage } from '../models'
 
+@Route('auth')
 export class AuthController {
-  static login = async (req: Request, res: Response) => {
+  @Post()
+  @SuccessResponse(200)
+  static async login(req: Request, res: Response) {
     //Check if username and password are set
     const { username, password } = req.body
 
@@ -37,13 +42,13 @@ export class AuthController {
     }
 
     //Sign JWT, valid for 1 hour
-    const token = jwt.sign({ userId: user.id, username: user.username }, config.jwtSecret, { expiresIn: '1h' })
+    const token = jwt.sign({ userId: user.id, username: user.username }, config.tokenSecret, { expiresIn: '1h' })
 
     //Send the jwt in the response
     res.send({ token })
   }
 
-  static changePassword = async (req: Request, res: Response) => {
+  static async changePassword(req: Request, res: Response) {
     //Get ID from JWT
     const id = res.locals.jwtPayload.userId
 
@@ -80,5 +85,33 @@ export class AuthController {
     userRepository.save(user)
 
     res.status(204).send()
+  }
+
+  static async signUp(user: IUserAddApiModel): Promise<IActionResult> {
+    //Get parameters from the body
+    const { username, password, firstname, lastname } = user
+    const userEntity = new User()
+    userEntity.username = username
+    userEntity.password = password
+    userEntity.role = 'normal'
+    userEntity.firstname = firstname
+    userEntity.lastname = lastname
+
+    //Hash the password, to securely store on DB
+    userEntity.hashPassword()
+
+    //Try to save. If fails, the username is already in use
+    const userRepository = getRepository(User)
+    try {
+      await userRepository.save(userEntity)
+    } catch (e) {
+      // res.status(409).send('username already in use')
+      console.log(e)
+      return createResponseMessage(409, 'username already in use')
+    }
+
+    //If all ok, send 201 response
+    // res.status(201).send('User created')
+    return createResponseMessage(201, 'User created')
   }
 }

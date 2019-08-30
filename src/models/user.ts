@@ -1,20 +1,19 @@
 export interface IUser {
-    id: number
-    firstname: string
-    lastname: string
+  username: string
+  firstname: string
+  lastname: string
 }
 
 export interface IUserAddApiModel extends IUser {
-    password: string
+  password: string
 }
 
 export interface IUserGetApiModel extends IUser {
-    createdAt: Date
-    updatedAt: Date
-    role: string
+  createdAt: Date
+  updatedAt: Date
+  role: string
 }
 
 export interface IUserEntity extends IUserGetApiModel {
-    password: string
+  password: string
 }
-
