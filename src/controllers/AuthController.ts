@@ -1,90 +1,39 @@
-import { Request, Response } from 'express'
 import * as jwt from 'jsonwebtoken'
 import { getRepository } from 'typeorm'
-import { validate } from 'class-validator'
-import { Get, Post, Route, Body, Query, Header, Path, SuccessResponse, Controller } from 'tsoa'
+import { Post, Route, SuccessResponse } from 'tsoa'
 
 import { User } from '../entity/User'
 import { config } from '../config'
 import { IUserAddApiModel, IActionResult, createResponseMessage } from '../models'
+import { LoginModel } from '../api-models'
 
 @Route('auth')
 export class AuthController {
   @Post()
   @SuccessResponse(200)
-  static async login(req: Request, res: Response) {
+  static async login(login: LoginModel): Promise<IActionResult> {
     //Check if username and password are set
-    const { username, password } = req.body
-
-    if (!(username && password)) {
-      res.status(400).send()
-      return
-    }
+    const { username, password } = login
 
     //Get user from database
     const userRepository = getRepository(User)
-    let user: User
-    try {
-      user = await userRepository.findOneOrFail({ where: { username } })
-    } catch (error) {
-      res.status(401).send()
-    }
+
+    const user = await userRepository.findOne({ where: { username } })
 
     if (!user) {
-      res.status(404).send()
-      return
+      return createResponseMessage(404, 'Invalid username or password')
     }
 
     //Check if encrypted password match
     if (!user.checkIfUnencryptedPasswordIsValid(password)) {
-      res.status(401).send()
-      return
+      return createResponseMessage(401, 'Invalid username or password')
     }
 
     //Sign JWT, valid for 1 hour
     const token = jwt.sign({ userId: user.id, username: user.username }, config.tokenSecret, { expiresIn: '1h' })
 
     //Send the jwt in the response
-    res.send({ token })
-  }
-
-  static async changePassword(req: Request, res: Response) {
-    //Get ID from JWT
-    const id = res.locals.jwtPayload.userId
-
-    //Get parameters from the body
-    const { oldPassword, newPassword } = req.body
-    if (!(oldPassword && newPassword)) {
-      res.status(400).send()
-    }
-
-    //Get user from the database
-    const userRepository = getRepository(User)
-    let user: User
-    try {
-      user = await userRepository.findOneOrFail(id)
-    } catch (id) {
-      res.status(401).send()
-    }
-
-    //Check if old password matchs
-    if (!user.checkIfUnencryptedPasswordIsValid(oldPassword)) {
-      res.status(401).send()
-      return
-    }
-
-    //Validate de model (password lenght)
-    user.password = newPassword
-    const errors = await validate(user)
-    if (errors.length > 0) {
-      res.status(400).send(errors)
-      return
-    }
-    //Hash the new password and save
-    user.hashPassword()
-    userRepository.save(user)
-
-    res.status(204).send()
+    return { statusCode: 200, response: { accessToken: token } }
   }
 
   static async signUp(user: IUserAddApiModel): Promise<IActionResult> {

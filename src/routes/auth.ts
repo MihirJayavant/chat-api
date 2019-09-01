@@ -1,33 +1,49 @@
 import { Router } from 'express'
 import { AuthController } from '../controllers/AuthController'
-import { checkJwt } from '../middlewares/checkJwt'
-import { UserAddModel } from '../api-models'
-import { validate } from 'class-validator'
+import { createUserAddModel, createLoginModel } from '../api-models'
+import { validate, ValidationError } from 'class-validator'
+import { createResponseMessage } from '../models'
 
 const router = Router()
-//Login route
-router.post('/login', AuthController.login)
 
-//Change my password
-router.post('/change-password', [checkJwt], AuthController.changePassword)
+// get error
+function standardizeError(errors: ValidationError[]) {
+  const constraints = errors[0].constraints
+  const messages = Object.keys(constraints).map(p => constraints[p])
+  return messages[0]
+}
+
+//Login route
+router.post('/login', async (req, res) => {
+  const login = createLoginModel(req.body)
+
+  // Validate if the parameters are ok
+  const errors = await validate(login)
+  if (errors.length > 0) {
+    const errRes = createResponseMessage(400, standardizeError(errors))
+    res.status(errRes.statusCode).send(errRes.response)
+    return
+  }
+
+  // controller
+  const result = await AuthController.login(login)
+  res.status(result.statusCode).send(result.response)
+})
 
 //signup new users
 router.post('/signup', async (req, res) => {
-  const { firstname, lastname, password, username } = req.body
-  //check payload
-  const user = new UserAddModel()
-  user.firstname = firstname
-  user.lastname = lastname
-  user.password = password
-  user.username = username
+  const user = createUserAddModel(req.body)
 
   // Validate if the parameters are ok
   const errors = await validate(user)
   if (errors.length > 0) {
-    res.status(400).send(errors)
+    console.log(errors[0])
+    const errRes = createResponseMessage(400, standardizeError(errors))
+    res.status(errRes.statusCode).send(errRes.response)
     return
   }
 
+  // controller
   const result = await AuthController.signUp(user)
   res.status(result.statusCode).send(result.response)
 })

@@ -22,3 +22,16 @@ export class UserAddModel implements IUserAddApiModel {
   @Length(3, 50)
   username: string
 }
+
+
+export function createUserAddModel(data: any): UserAddModel {
+  const { firstname, lastname, password, username } = data
+
+  const user = new UserAddModel()
+  user.firstname = firstname
+  user.lastname = lastname
+  user.password = password
+  user.username = username
+
+  return user
+}
