@@ -25,7 +25,7 @@ export class AuthController {
     }
 
     //Check if encrypted password match
-    if (!user.checkIfUnencryptedPasswordIsValid(password)) {
+    if (!(await user.checkIfUnencryptedPasswordIsValid(password))) {
       return createResponseMessage(401, 'Invalid username or password')
     }
 
@@ -47,7 +47,7 @@ export class AuthController {
     userEntity.lastname = lastname
 
     //Hash the password, to securely store on DB
-    userEntity.hashPassword()
+    await userEntity.hashPassword()
 
     //Try to save. If fails, the username is already in use
     const userRepository = getRepository(User)

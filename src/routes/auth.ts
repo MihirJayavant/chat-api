@@ -1,8 +1,9 @@
-import { Router } from 'express'
+import { Router, Response, Request } from 'express'
 import { AuthController } from '../controllers/AuthController'
 import { createUserAddModel, createLoginModel } from '../api-models'
 import { validate, ValidationError } from 'class-validator'
 import { createResponseMessage } from '../models'
+import { checkBody } from '../middlewares'
 
 const router = Router()
 
@@ -14,38 +15,15 @@ function standardizeError(errors: ValidationError[]) {
 }
 
 //Login route
-router.post('/login', async (req, res) => {
-  const login = createLoginModel(req.body)
-
-  // Validate if the parameters are ok
-  const errors = await validate(login)
-  if (errors.length > 0) {
-    const errRes = createResponseMessage(400, standardizeError(errors))
-    res.status(errRes.statusCode).send(errRes.response)
-    return
-  }
-
-  // controller
-  const result = await AuthController.login(login)
-  res.status(result.statusCode).send(result.response)
+router.post('/login', [checkBody(createLoginModel)], async (req: Request, res: Response) => {
+  const { statusCode, response } = await AuthController.login(req.body)
+  res.status(statusCode).send(response)
 })
 
 //signup new users
-router.post('/signup', async (req, res) => {
-  const user = createUserAddModel(req.body)
-
-  // Validate if the parameters are ok
-  const errors = await validate(user)
-  if (errors.length > 0) {
-    console.log(errors[0])
-    const errRes = createResponseMessage(400, standardizeError(errors))
-    res.status(errRes.statusCode).send(errRes.response)
-    return
-  }
-
-  // controller
-  const result = await AuthController.signUp(user)
-  res.status(result.statusCode).send(result.response)
+router.post('/signup', [checkBody(createUserAddModel)], async (req, res) => {
+  const { statusCode, response } = await AuthController.signUp(req.body)
+  res.status(statusCode).send(response)
 })
 
 export default router
