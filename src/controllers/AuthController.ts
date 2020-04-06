@@ -11,7 +11,7 @@ import { LoginModel } from '../api-models'
 export class AuthController {
   @Post()
   @SuccessResponse(200)
-  static async login(login: LoginModel): Promise<IActionResult> {
+  static async login(login: LoginModel): Promise<IActionResult<any>> {
     //Check if username and password are set
     const { username, password } = login
 
@@ -36,7 +36,7 @@ export class AuthController {
     return { statusCode: 200, response: { accessToken: token } }
   }
 
-  static async signUp(user: IUserAddApiModel): Promise<IActionResult> {
+  static async signUp(user: IUserAddApiModel): Promise<IActionResult<any>> {
     //Get parameters from the body
     const { username, password, firstname, lastname } = user
     const userEntity = new User()

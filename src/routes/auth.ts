@@ -1,18 +1,9 @@
 import { Router, Response, Request } from 'express'
 import { AuthController } from '../controllers/AuthController'
 import { createUserAddModel, createLoginModel } from '../api-models'
-import { validate, ValidationError } from 'class-validator'
-import { createResponseMessage } from '../models'
 import { checkBody } from '../middlewares'
 
 const router = Router()
-
-// get error
-function standardizeError(errors: ValidationError[]) {
-  const constraints = errors[0].constraints
-  const messages = Object.keys(constraints).map(p => constraints[p])
-  return messages[0]
-}
 
 //Login route
 router.post('/login', [checkBody(createLoginModel)], async (req: Request, res: Response) => {

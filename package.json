@@ -1,13 +1,14 @@
 {
   "name": "ts-express",
-  "version": "0.0.1",
+  "version": "0.5.0",
   "license": "MIT",
   "description": "Chat application",
   "scripts": {
-    "tsc": "tsc",
+    "tsc": "tsc -p tsconfig.json",
     "start": "set debug=* && ts-node-dev --respawn --transpileOnly ./src/index.ts",
-    "prod": "tsc && node ./build/app.js",
-    "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run"
+    "prod": "tsc && node ./build/index.js",
+    "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run",
+    "swagger:gen": "tsoa swagger -c ./api/tsoa.json && tsoa routes -c ./api/tsoa.json"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

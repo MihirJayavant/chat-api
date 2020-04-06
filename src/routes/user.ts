@@ -6,7 +6,10 @@ import { checkRole } from '../middlewares/checkRole'
 const router = Router()
 
 //Get all users
-router.get('/', [checkJwt, checkRole(['ADMIN'])], UserController.listAll)
+router.get('/', [checkJwt], async (req, res) => {
+  const { statusCode, response } = await UserController.listAll()
+  res.status(statusCode).send(response)
+})
 
 // Get one user
 router.get('/:id([0-9]+)', [checkJwt, checkRole(['ADMIN'])], UserController.getOneById)

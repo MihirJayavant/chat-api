@@ -3,17 +3,17 @@ import { getRepository } from 'typeorm'
 import { validate } from 'class-validator'
 
 import { User } from '../entity/User'
+import { IActionResult } from '../models'
 
 export class UserController {
-  static listAll = async (req: Request, res: Response) => {
+  static listAll = async (): Promise<IActionResult<any>> => {
     //Get users from database
     const userRepository = getRepository(User)
     const users = await userRepository.find({
-      select: ['id', 'username', 'role'] //We dont want to send the passwords on response
+      select: ['id', 'username', 'role'], //We dont want to send the passwords on response
     })
 
-    //Send the users object
-    res.send(users)
+    return { statusCode: 200, response: users }
   }
 
   static getOneById = async (req: Request, res: Response) => {
@@ -24,7 +24,7 @@ export class UserController {
     const userRepository = getRepository(User)
     try {
       const user = await userRepository.findOneOrFail(id, {
-        select: ['id', 'username', 'role'] //We dont want to send the password on response
+        select: ['id', 'username', 'role'], //We dont want to send the password on response
       })
     } catch (error) {
       res.status(404).send('User not found')
