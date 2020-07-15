@@ -1,15 +1,12 @@
-import { Router, Request, Response } from 'express'
-import { listAll, getOneById, editUser, deleteUser } from '../controllers/UserController'
+import { Router } from 'express'
 import { checkJwt } from '../middlewares/checkJwt'
 import { checkRole } from '../middlewares/checkRole'
+import { baseController, listAll, getOneById, editUser, deleteUser } from '../controllers'
 
 const router = Router()
 
 //Get all users
-router.get('/', [checkJwt], async (req: Request, res: Response) => {
-  const { statusCode, response } = await listAll()
-  res.status(statusCode).send(response)
-})
+router.get('/', [checkJwt], baseController(_req => listAll()))
 
 // Get one user
 router.get('/:id([0-9]+)', [checkJwt, checkRole(['ADMIN'])], getOneById)

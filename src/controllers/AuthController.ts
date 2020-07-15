@@ -4,12 +4,12 @@ import { getRepository } from 'typeorm'
 import { User } from '../entity/User'
 import { config } from '../config'
 import { IUserAddApiModel, IActionResult, createResponseMessage } from '../models'
-import { LoginModel } from '../api-models'
+import { LoginModel, ITokenModel } from '../api-models'
 
 
 
 
-export async function login(login: LoginModel): Promise<IActionResult<any>> {
+export async function login(login: LoginModel): Promise<IActionResult<ITokenModel>> {
   //Check if username and password are set
   const { username, password } = login
 
@@ -34,7 +34,7 @@ export async function login(login: LoginModel): Promise<IActionResult<any>> {
   return { statusCode: 200, response: { accessToken: token } }
 }
 
-export async function signUp(user: IUserAddApiModel): Promise<IActionResult<any>> {
+export async function signUp(user: IUserAddApiModel): Promise<IActionResult<string>> {
   //Get parameters from the body
   const { username, password, firstname, lastname } = user
   const userEntity = new User()

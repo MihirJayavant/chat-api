@@ -31,7 +31,6 @@
     "pg": "^8.0.0",
     "reflect-metadata": "^0.1.13",
     "ts-node-dev": "^1.0.0-pre.44",
-    "tsoa": "^2.5.13",
     "typeorm": "0.2.24"
   }
 }

@@ -5,3 +5,5 @@ build/
 tmp/
 temp/
 .ionide/
+yarn-error.log
+secret.txt
