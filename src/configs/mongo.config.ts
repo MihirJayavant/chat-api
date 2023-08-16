@@ -1,5 +1,6 @@
+import { environment } from "./environments/index.ts";
 import { mongoose } from "/deps.ts";
 
-export async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/chatdb");
+export async function mongoConnect() {
+  await mongoose.connect(environment.mongoUrl);
 }

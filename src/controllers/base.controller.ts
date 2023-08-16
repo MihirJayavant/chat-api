@@ -36,7 +36,7 @@ export function baseController<T>(controller: fn<T>) {
 export interface IControllerCreator<TData, TResult> {
   route: string;
   middlewares?: MiddlewareFn[];
-  selector?: (ctx: RouterContext<any>) => TData;
+  selector?: (ctx: RouterContext<any>) => Promise<TData>;
   controller: (data: TData) => ControllerResponse<TResult>;
 }
 
